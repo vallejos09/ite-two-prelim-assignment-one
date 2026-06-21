@@ -1,140 +1,188 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace StudentManagementSystem
+// =========================
+// STUDENT CLASS (ONE STUDENT)
+// =========================
+class Student
 {
-    class Program
+    private string name;
+    private List<double> grades;
+
+    public Student(string name, double g1, double g2, double g3)
     {
-        static List<string> studentNames = new List<string>();
-        static List<double> studentGrades = new List<double>();
+        this.name = name;
 
-        static void Main(string[] join)
+        grades = new List<double>();
+        grades.Add(g1);
+        grades.Add(g2);
+        grades.Add(g3);
+    }
+
+    public string GetName()
+    {
+        return name;
+    }
+
+    public List<double> GetGrades()
+    {
+        return grades;
+    }
+
+    public double GetAverage()
+    {
+        double sum = 0;
+
+        foreach (double grade in grades)
         {
-            bool running = true;
+            sum += grade;
+        }
 
-            while (running)
+        return sum / grades.Count;
+    }
+}
+
+// =========================
+// STUDENT MANAGER (LOGIC)
+// =========================
+class StudentManager
+{
+    private List<Student> students = new List<Student>();
+
+    public void AddStudent(string name, double g1, double g2, double g3)
+    {
+        Student s = new Student(name, g1, g2, g3);
+        students.Add(s);
+    }
+
+    public List<string> GetAllStudents()
+    {
+        List<string> result = new List<string>();
+
+        foreach (Student s in students)
+        {
+            List<double> g = s.GetGrades();
+
+            string data =
+                "Name: " + s.GetName() + "\n" +
+                "Grades: " + g[0] + ", " + g[1] + ", " + g[2] + "\n" +
+                "Average: " + s.GetAverage().ToString("F2");
+
+            result.Add(data);
+        }
+
+        return result;
+    }
+
+    public double GetClassAverage()
+    {
+        if (students.Count == 0)
+            return 0;
+
+        double sum = 0;
+
+        foreach (Student s in students)
+        {
+            sum += s.GetAverage();
+        }
+
+        return sum / students.Count;
+    }
+
+    public string GetTopStudent()
+    {
+        if (students.Count == 0)
+            return "No students available.";
+
+        Student top = students[0];
+
+        foreach (Student s in students)
+        {
+            if (s.GetAverage() > top.GetAverage())
             {
-                Console.WriteLine("\n====================================");
-                Console.WriteLine("     STUDENT MANAGEMENT SYSTEM      ");
-                Console.WriteLine("====================================");
-                Console.WriteLine("1. Add Student Record");
-                Console.WriteLine("2. View All Student Records");
-                Console.WriteLine("3. View Class Summary & Analytics");
-                Console.WriteLine("4. Exit");
-                Console.WriteLine("====================================");
-                Console.Write("Enter your choice (1-4): ");
+                top = s;
+            }
+        }
 
-                string choice = Console.ReadLine();
+        return "Top Student: " + top.GetName() +
+               "\nHighest Grade: " + top.GetAverage().ToString("F2");
+    }
+}
+
+// =========================
+// MAIN PROGRAM (INPUT/OUTPUT)
+// =========================
+class Program
+{
+    static void Main()
+    {
+        StudentManager manager = new StudentManager();
+
+        while (true)
+        {
+            Console.WriteLine("===== STUDENT SYSTEM =====");
+            Console.WriteLine("1. Add Student");
+            Console.WriteLine("2. View All Students");
+            Console.WriteLine("3. Compute Average Grade");
+            Console.WriteLine("4. Find Highest Grade");
+            Console.WriteLine("5. Exit");
+            Console.WriteLine("==========================");
+            Console.Write("Choose an option: ");
+
+            int choice = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine();
+
+            if (choice == 1)
+            {
+                Console.Write("Enter student name: ");
+                string name = Console.ReadLine();
+
+                Console.Write("Enter grade 1: ");
+                double g1 = Convert.ToDouble(Console.ReadLine());
+
+                Console.Write("Enter grade 2: ");
+                double g2 = Convert.ToDouble(Console.ReadLine());
+
+                Console.Write("Enter grade 3: ");
+                double g3 = Convert.ToDouble(Console.ReadLine());
+
+                manager.AddStudent(name, g1, g2, g3);
+
+                Console.WriteLine("Student added successfully!\n");
+            }
+            else if (choice == 2)
+            {
+                List<string> students = manager.GetAllStudents();
+
+                foreach (string s in students)
+                {
+                    Console.WriteLine(s);
+                    Console.WriteLine();
+                }
+            }
+            else if (choice == 3)
+            {
+                double avg = manager.GetClassAverage();
+
+                Console.WriteLine("===== CLASS AVERAGE =====");
+                Console.WriteLine("Overall Average Grade: " + avg.ToString("F2") + "\n");
+            }
+            else if (choice == 4)
+            {
+                Console.WriteLine("===== HIGHEST GRADE =====");
+                Console.WriteLine(manager.GetTopStudent());
                 Console.WriteLine();
-
-                switch (choice)
-                {
-                    case "1":
-                        AddStudentRecord();
-                        break;
-                    case "2":
-                        ViewStudentRecords();
-                        break;
-                    case "3":
-                        ViewClassSummary();
-                        break;
-                    case "4":
-                        Console.WriteLine("Exiting the program. Thank you!");
-                        running = false;
-                        break;
-                    default:
-                        Console.WriteLine("Invalid choice! Please select a valid option from 1 to 4.");
-                        break;
-                }
             }
-        }
-        static void AddStudentRecord()
-        {
-            Console.WriteLine("--- ADD NEW STUDENT RECORD ---");
-
-            string name = "";
-            while (true)
+            else if (choice == 5)
             {
-                Console.Write("Enter Student Name: ");
-                name = Console.ReadLine().Trim();
-                if (!string.IsNullOrEmpty(name))
-                {
-                    break;
-                }
-                Console.WriteLine("Name cannot be empty. Please enter a valid name.");
+                Console.WriteLine("Exiting program...");
+                Console.WriteLine("Goodbye!");
+                break;
             }
-
-            double grade = 0;
-            while (true)
+            else
             {
-                Console.Write("Enter Student Grade (0 - 100): ");
-                string gradeInput = Console.ReadLine();
-                if (double.TryParse(gradeInput, out grade))
-                {
-                    if (grade >= 0 && grade <= 100)
-                    {
-                        break;
-                    }
-                }
-                Console.WriteLine("Invalid Input! Grade must be a numerical value between 0 and 100.");
+                Console.WriteLine("Invalid option!\n");
             }
-
-            studentNames.Add(name);
-            studentGrades.Add(grade);
-
-            Console.WriteLine($"\nSuccess: Record for '{name}' with grade {grade:F2} has been saved.");
-        }
-
-        static void ViewStudentRecords()
-        {
-            Console.WriteLine("--- ALL STUDENT RECORDS ---");
-
-            if (studentNames.Count == 0)
-            {
-                Console.WriteLine("No records found. Please add students first.");
-                return;
-            }
-
-            Console.WriteLine("------------------------------------");
-            Console.WriteLine(String.Format("{0,-5} | {1,-20} | {2,-10}", "No.", "Student Name", "Grade"));
-            Console.WriteLine("------------------------------------");
-
-            for (int i = 0; i < studentNames.Count; i++)
-            {
-                Console.WriteLine(String.Format("{0,-5} | {1,-20} | {2,-10:F2}", (i + 1), studentNames[i], studentGrades[i]));
-            }
-            Console.WriteLine("------------------------------------");
-        }
-        static void ViewClassSummary()
-        {
-            Console.WriteLine("--- CLASS SUMMARY & ANALYTICS ---");
-
-            if (studentNames.Count == 0)
-            {
-                Console.WriteLine("No data available to compute analytics. Add records first.");
-                return;
-            }
-
-            double totalSum = 0;
-            double highestGrade = studentGrades[0];
-            string topStudent = studentNames[0];
-
-            for (int i = 0; i < studentGrades.Count; i++)
-            {
-                totalSum += studentGrades[i];
-                if (studentGrades[i] > highestGrade)
-                {
-                    highestGrade = studentGrades[i];
-                    topStudent = studentNames[i];
-                }
-            }
-
-            double classAverage = totalSum / studentGrades.Count;
-            Console.WriteLine($"Total Students Enrolled : {studentNames.Count}");
-            Console.WriteLine($"Class Average Grade     : {classAverage:F2}");
-            Console.WriteLine($"Highest Grade in Class  : {highestGrade:F2}");
-            Console.WriteLine($"Top Performing Student  : {topStudent}");
-            Console.WriteLine("------------------------------------");
         }
     }
 }
